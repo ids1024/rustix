@@ -33,8 +33,11 @@ macro_rules! cmsg_space {
 }
 
 #[doc(hidden)]
-pub fn __cmsg_space(len: usize) -> usize {
-    unsafe { c::CMSG_SPACE(len.try_into().expect("CMSG_SPACE size overflow")) as usize }
+pub const fn __cmsg_space(len: usize) -> usize {
+    if len > c::c_uint::MAX as usize {
+        panic!("CMSG_SPACE size overflow");
+    }
+    unsafe { c::CMSG_SPACE(len as c::c_uint) as usize }
 }
 
 /// Ancillary message for [`sendmsg`], [`sendmsg_v4`], [`sendmsg_v6`],
